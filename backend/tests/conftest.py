@@ -2,8 +2,10 @@ import os
 
 # Set before any app module is imported — pydantic-settings reads env vars at Settings()
 # instantiation time, which happens on first import of app.config.
-os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
-os.environ.setdefault("ANTHROPIC_API_KEY", "test-key-not-real")
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["ANTHROPIC_API_KEY"] = "test-key-not-real"
+os.environ["DEMO_BYPASS_CODE"] = "ttb-demo-test-7f4c9d2a"
+os.environ["SECRET_KEY"] = "test-secret-key-0123456789abcdef0123456789abcdef"
 
 from unittest.mock import MagicMock
 

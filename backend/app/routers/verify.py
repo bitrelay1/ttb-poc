@@ -8,7 +8,7 @@ import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -204,15 +204,24 @@ async def prefill_label(
 class ApplicationData(BaseModel):
     """Application data submitted by the agent. Sent to the AI as the ground truth for comparison."""
 
-    model_config = {"extra": "ignore"}
+    model_config = {"extra": "ignore", "populate_by_name": True}
 
     brand_name: str = Field(description="Brand name as printed on the label. Case-insensitive fuzzy match.")
     class_type: str = Field(description="Class/type designation, e.g. 'Kentucky Straight Bourbon Whiskey'.")
     abv: str = Field(description="Alcohol by volume, e.g. '45% Alc./Vol. (90 Proof)'.")
     net_contents: str = Field(description="Net volume, e.g. '750 mL'.")
     bottler_name: str = Field(description="Name of bottler or producer as listed on the COLA application.")
-    bottler_address: str = Field(description="Full address of bottler/producer (city, state, zip assembled by the frontend).")
-    product_type: str = Field(description="Product category: 'distilled_spirits', 'wine', or 'malt_beverage'.")
+    bottler_city: str = Field(default="", description="Bottler or producer city.")
+    bottler_state: str = Field(default="", description="Bottler or producer state.")
+    bottler_zip: str = Field(default="", description="Bottler or producer zip code.")
+    bottler_address: str = Field(
+        default="",
+        description="Full address of bottler/producer. If omitted, it is assembled from city, state, and zip.",
+    )
+    product_type: str = Field(
+        alias="type_of_product",
+        description="Product category: 'distilled_spirits', 'wine', or 'malt_beverage'.",
+    )
     country_of_origin: str = Field(
         default="United States",
         description="Country of origin. Omit for domestic products; defaults to 'United States'.",
@@ -231,6 +240,13 @@ class ApplicationData(BaseModel):
             "Distilled Spirits only. Required when distillation state differs from bottler address state (27 CFR 5.66(f))."
         ),
     )
+
+    @model_validator(mode="after")
+    def _assemble_bottler_address(self):
+        if not self.bottler_address:
+            parts = [part.strip() for part in (self.bottler_city, self.bottler_state, self.bottler_zip) if part.strip()]
+            self.bottler_address = ", ".join(parts)
+        return self
 
 
 class FieldOverride(BaseModel):
