@@ -90,7 +90,7 @@ jobs:
       # so a CVSSv4 8.0 maps to HIGH/CRITICAL in severity label terms.
       # RCEs virtually always land in CRITICAL or HIGH.
       - name: CVE gate — CRITICAL/HIGH (fixable)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -103,7 +103,7 @@ jobs:
       # ignore-unfixed is intentionally false here; we never want to skip a
       # known-exploited critical regardless of patch availability.
       - name: KEV gate — unfixed CRITICAL (actively exploited)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
