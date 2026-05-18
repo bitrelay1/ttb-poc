@@ -215,7 +215,7 @@ export default function SinglePage() {
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={(e) => { e.stopPropagation(); window.open(preview, '_blank', 'noopener,noreferrer,width=960,height=720,resizable,scrollbars'); }}
+              onClick={(e) => { e.stopPropagation(); if (preview && new URL(preview).protocol === 'blob:') window.open(preview, '_blank', 'noopener,noreferrer,width=960,height=720,resizable,scrollbars'); }}
               aria-label="Open label image in a new window"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="15" height="15" aria-hidden="true">
