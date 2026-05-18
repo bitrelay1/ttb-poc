@@ -6,8 +6,11 @@ Admin-only endpoints must reject agent-role sessions with 403.
 """
 import io
 import json
+import os
 
 import pytest
+
+DEMO_BYPASS_CODE = os.environ["DEMO_BYPASS_CODE"]
 
 _APP_DATA = {
     "brand_name": "Test Brand",
@@ -83,11 +86,11 @@ class TestDemoAuth:
     """The demo bypass code is essential for federal environments where network policy
     blocks OAuth popups. Agents should always be able to enter the app via the code.
 
-    The default code is 'ttb-demo' (settings.demo_bypass_code default value).
+    The code is injected by backend/tests/conftest.py.
     """
 
     def test_valid_demo_code_returns_ok_and_sets_session(self, anon_client):
-        resp = anon_client.post("/api/auth/demo", json={"code": "ttb-demo"})
+        resp = anon_client.post("/api/auth/demo", json={"code": DEMO_BYPASS_CODE})
         assert resp.status_code == 200
         assert resp.json() == {"ok": True}
 
@@ -140,5 +143,5 @@ class TestCSRF:
 
     def test_demo_login_exempt_from_csrf(self, anon_client):
         # /api/auth/demo is a pre-auth endpoint, must work without CSRF token
-        resp = anon_client.post("/api/auth/demo", json={"code": "ttb-demo"})
+        resp = anon_client.post("/api/auth/demo", json={"code": DEMO_BYPASS_CODE})
         assert resp.status_code == 200

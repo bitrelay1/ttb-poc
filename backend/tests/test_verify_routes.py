@@ -16,6 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from app.routers.verify import _sign_result
 from app.services.vision import VerificationField, VerificationResult, _compute_overall
 from tests.conftest import CANONICAL_WARNING
 
@@ -215,10 +216,12 @@ class TestOverallAggregation:
 
 class TestFinalizeWorkflow:
     def _body(self, fields: list[dict], overrides: dict | None = None) -> dict:
+        result = {"overall": "pass", "fields": fields}
+        result["_sig"] = _sign_result(result)
         return {
             "filename": "label.jpg",
             "application_data": _MINIMAL_APP_DATA,
-            "result": {"overall": "pass", "fields": fields},
+            "result": result,
             "overrides": overrides or {},
         }
 
