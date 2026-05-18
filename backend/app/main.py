@@ -31,8 +31,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         response.headers.setdefault(
             "Content-Security-Policy",
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; object-src 'none'; "
+            "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "img-src 'self' data: blob: https://fastapi.tiangolo.com; "
+            "connect-src 'self'; font-src 'self'; object-src 'none'; "
             "frame-ancestors 'none'",
         )
         if settings.secure_cookies:
