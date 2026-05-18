@@ -199,7 +199,7 @@ export default function SinglePage() {
           />
           {preview ? (
             <>
-              <img src={preview} alt="Selected label" className="preview-img" />
+              <img src={new URL(preview).protocol === 'blob:' ? preview : undefined} alt="Selected label" className="preview-img" />
               <p className="file-name">{file.name}</p>
             </>
           ) : (
