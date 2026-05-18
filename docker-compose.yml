@@ -1,0 +1,52 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >-
+      bash -lc "cd backend && pip install --no-build-isolation -e . && alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ttb_app}:${POSTGRES_PASSWORD:-ttb_dev_password}@db:5432/${POSTGRES_DB:-ttb_labels}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      DEMO_BYPASS_CODE: ${DEMO_BYPASS_CODE:-ttb-demo}
+      DEMO_ADMIN_CODE: ${DEMO_ADMIN_CODE:-}
+      SECRET_KEY: ${SECRET_KEY:-change-in-production}
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      NPM_CONFIG_AUDIT: "true"
+      NPM_CONFIG_FUND: "false"
+    volumes:
+      - .:/workspaces/ttb-poc:Z
+    working_dir: /workspaces/ttb-poc
+    user: root
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  db:
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ttb_labels}
+      POSTGRES_USER: ${POSTGRES_USER:-ttb_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ttb_dev_password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ttb_app} -d ${POSTGRES_DB:-ttb_labels}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

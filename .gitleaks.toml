@@ -1,0 +1,3 @@
+[allowlist]
+  description = "Ignore placeholder values in the example env template"
+  paths = ['''.env\.example''']
