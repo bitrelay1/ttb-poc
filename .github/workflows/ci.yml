@@ -38,7 +38,7 @@ jobs:
       - name: Generate SBOM (CycloneDX)
         run: |
           pip install cyclonedx-bom
-          cyclonedx-py environment -o sbom-backend.json --format json
+          cyclonedx-py environment -o sbom-backend.json --of JSON
         working-directory: backend
 
       - name: Upload SBOM artifact
